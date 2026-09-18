@@ -4,6 +4,7 @@ import pytest
 
 from app.units.definitions import Unit
 from app.units.quantity import Quantity
+from app.units.parser import parse_unit
 
 
 def test_quantity_creation():
@@ -110,3 +111,52 @@ def test_same_unit_conversion_returns_same_quantity():
     converted = quantity.convert_to(Unit.GRAM)
 
     assert converted is quantity
+
+
+def test_parse_mass_unit_aliases():
+    assert parse_unit("g") == Unit.GRAM
+    assert parse_unit("gram") == Unit.GRAM
+    assert parse_unit("grams") == Unit.GRAM
+
+    assert parse_unit("kg") == Unit.KILOGRAM
+    assert parse_unit("kilo") == Unit.KILOGRAM
+    assert parse_unit("kilos") == Unit.KILOGRAM
+    assert parse_unit("kilogram") == Unit.KILOGRAM
+    assert parse_unit("kilograms") == Unit.KILOGRAM
+
+
+def test_parse_volume_unit_aliases():
+    assert parse_unit("ml") == Unit.MILLILITER
+    assert parse_unit("milliliter") == Unit.MILLILITER
+    assert parse_unit("milliliters") == Unit.MILLILITER
+
+    assert parse_unit("l") == Unit.LITER
+    assert parse_unit("liter") == Unit.LITER
+    assert parse_unit("liters") == Unit.LITER
+
+
+def test_parse_cooking_unit_aliases():
+    assert parse_unit("tsp") == Unit.TEASPOON
+    assert parse_unit("teaspoon") == Unit.TEASPOON
+    assert parse_unit("teaspoons") == Unit.TEASPOON
+
+    assert parse_unit("tbsp") == Unit.TABLESPOON
+    assert parse_unit("tablespoon") == Unit.TABLESPOON
+    assert parse_unit("tablespoons") == Unit.TABLESPOON
+
+
+def test_parse_count_unit_aliases():
+    assert parse_unit("piece") == Unit.PIECE
+    assert parse_unit("pieces") == Unit.PIECE
+
+
+def test_parse_unit_aliases_are_case_insensitive():
+    assert parse_unit("G") == Unit.GRAM
+    assert parse_unit("GRAMS") == Unit.GRAM
+    assert parse_unit("Kg") == Unit.KILOGRAM
+    assert parse_unit("ML") == Unit.MILLILITER
+    assert parse_unit("Liters") == Unit.LITER
+    assert parse_unit("TSP") == Unit.TEASPOON
+    assert parse_unit("TBSP") == Unit.TABLESPOON
+    assert parse_unit("Pieces") == Unit.PIECE
+

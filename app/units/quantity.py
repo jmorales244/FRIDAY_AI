@@ -16,7 +16,11 @@ class Quantity:
 
     def __post_init__(self):
         if not isinstance(self.value, Decimal):
-            object.__setattr__(self, "value", Decimal(str(self.value)))
+            object.__setattr__(
+                self,
+                "value",
+                Decimal(str(self.value)),
+            )
 
     def __str__(self):
         return f"{self.value} {self.unit.value}"
