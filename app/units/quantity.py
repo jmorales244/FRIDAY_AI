@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from decimal import Decimal
 
-from app.units.definitions import Unit
+from app.units.definitions import Unit, UnitCategory
 from app.units.conversions import (
     convert_mass,
     convert_volume,
@@ -27,24 +27,25 @@ class Quantity:
 
         if self.unit.category != target_unit.category:
             raise ValueError(
-                f"Cannot convert {self.unit.value} to {target_unit.value}"
+                f"Cannot convert {self.unit.value} to {target_unit.value}: "
+                "units belong to different categories"
             )
 
-        if self.unit.category.value == "mass":
+        if self.unit.category == UnitCategory.MASS:
             new_value = convert_mass(
                 self.value,
                 self.unit,
                 target_unit,
             )
 
-        elif self.unit.category.value == "volume":
+        elif self.unit.category == UnitCategory.VOLUME:
             new_value = convert_volume(
                 self.value,
                 self.unit,
                 target_unit,
             )
 
-        elif self.unit.category.value == "temperature":
+        elif self.unit.category == UnitCategory.TEMPERATURE:
             new_value = convert_temperature(
                 self.value,
                 self.unit,
@@ -58,3 +59,37 @@ class Quantity:
             )
 
         return Quantity(new_value, target_unit)
+
+    def __add__(self, other: "Quantity") -> "Quantity":
+        if not isinstance(other, Quantity):
+            return NotImplemented
+
+        if self.unit.category != other.unit.category:
+            raise ValueError(
+                f"Cannot add {self.unit.value} and {other.unit.value}: "
+                "units belong to different categories"
+            )
+
+        other_converted = other.convert_to(self.unit)
+
+        return Quantity(
+            self.value + other_converted.value,
+            self.unit,
+        )
+
+    def __sub__(self, other: "Quantity") -> "Quantity":
+        if not isinstance(other, Quantity):
+            return NotImplemented
+
+        if self.unit.category != other.unit.category:
+            raise ValueError(
+                f"Cannot subtract {other.unit.value} from {self.unit.value}: "
+                "units belong to different categories"
+            )
+
+        other_converted = other.convert_to(self.unit)
+
+        return Quantity(
+            self.value - other_converted.value,
+            self.unit,
+        )
