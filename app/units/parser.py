@@ -1,4 +1,8 @@
+import re
+from decimal import Decimal
+
 from app.units.definitions import Unit
+from app.units.quantity import Quantity
 
 
 UNIT_ALIASES = {
@@ -74,3 +78,27 @@ def parse_unit(text: str) -> Unit:
     except KeyError:
         raise ValueError(f"Unknown unit: {text}")
 
+
+def parse_quantity(text: str) -> Quantity:
+    """Convert a human-readable quantity into a Quantity object."""
+
+    normalized = text.strip()
+
+    match = re.fullmatch(
+        r"([0-9]+(?:\.[0-9]+)?)\s*(.+)",
+        normalized,
+    )
+
+    if not match:
+        raise ValueError(f"Invalid quantity: {text}")
+
+    value_text, unit_text = match.groups()
+
+    try:
+        value = Decimal(value_text)
+    except Exception:
+        raise ValueError(f"Invalid quantity value: {value_text}")
+
+    unit = parse_unit(unit_text)
+
+    return Quantity(value, unit)

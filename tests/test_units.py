@@ -4,7 +4,7 @@ import pytest
 
 from app.units.definitions import Unit
 from app.units.quantity import Quantity
-from app.units.parser import parse_unit
+from app.units.parser import parse_quantity, parse_unit
 
 
 def test_quantity_creation():
@@ -160,3 +160,54 @@ def test_parse_unit_aliases_are_case_insensitive():
     assert parse_unit("TBSP") == Unit.TABLESPOON
     assert parse_unit("Pieces") == Unit.PIECE
 
+
+def test_parse_quantity_with_spacing():
+    quantity = parse_quantity("500 g")
+
+    assert quantity.value == Decimal("500")
+    assert quantity.unit == Unit.GRAM
+
+
+def test_parse_quantity_without_spacing():
+    quantity = parse_quantity("500g")
+
+    assert quantity.value == Decimal("500")
+    assert quantity.unit == Unit.GRAM
+
+
+def test_parse_quantity_with_decimal():
+    quantity = parse_quantity("0.5 kg")
+
+    assert quantity.value == Decimal("0.5")
+    assert quantity.unit == Unit.KILOGRAM
+
+
+def test_parse_quantity_with_decimal_and_cooking_unit():
+    quantity = parse_quantity("1.5 cups")
+
+    assert quantity.value == Decimal("1.5")
+    assert quantity.unit == Unit.CUP
+
+
+def test_parse_quantity_with_tablespoon():
+    quantity = parse_quantity("2 tbsp")
+
+    assert quantity.value == Decimal("2")
+    assert quantity.unit == Unit.TABLESPOON
+
+
+def test_parse_quantity_with_count():
+    quantity = parse_quantity("3 pieces")
+
+    assert quantity.value == Decimal("3")
+    assert quantity.unit == Unit.PIECE
+
+
+def test_parse_quantity_invalid_input():
+    with pytest.raises(ValueError, match="Invalid quantity"):
+        parse_quantity("chicken")
+
+
+def test_parse_quantity_invalid_unit():
+    with pytest.raises(ValueError, match="Unknown unit"):
+        parse_quantity("500 bananas")
