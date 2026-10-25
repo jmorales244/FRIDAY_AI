@@ -1,2 +1,5 @@
 SQLAlchemy
 pytest
+fastapi
+uvicorn[standard]
+httpx
